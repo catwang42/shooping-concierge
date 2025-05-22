@@ -1,0 +1,8 @@
+next25-shoppers-concierge.code-workspace
+.venv/*
+.vscode
+.vscode/*
+at-ui/node_modules/*
+shop-web/app/keys.txt
+shop-web/app/dist/*
+shop-web/app/nohup.out

@@ -1,0 +1,7 @@
+app/env/*
+app/__pycache__/*
+app/*.zip
+*.code-workspace
+*.pyc
+keys*.txt
+*.log

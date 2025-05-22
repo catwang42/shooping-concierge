@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gemini Live API Test</title>
+  </head>
+  <body>
+    <h1>Gemini Live API Test</h1>
+    <div
+      id="messages"
+      style="height: 300px; overflow-y: auto; border: 1px solid black"
+    ></div>
+    <br />
+
+    <form id="messageForm">
+      <label for="message">Message:</label>
+      <input type="text" id="message" name="message" />
+      <button type="submit" id="sendButton" disabled>Send</button>
+      <button type="button" id="startAudioButton">Start Audio</button>
+    </form>
+  </body>
+
+  <script type="module" src="/public/main.js"></script>
+</html>

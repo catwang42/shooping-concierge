@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Cam</title>
+</head>
+
+<body>
+    <video id="webcam" autoplay playsinline></video>
+    <button id="sendButton" disabled="true">📷 SEND</button>
+    <style>
+        #webcam {
+            display: block;
+            margin: auto;
+        }
+
+        #sendButton {
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+
+</body>
+
+<script type="module">
+
+    // import shared consts and functions
+    import { CMD_UI, arrayBufferToBase64 } from './shop-web-js/shared.js';
+
+    // The send button
+    const sendButton = document.getElementById('sendButton');
+
+    // Open the webcam
+    const webcam = document.getElementById('webcam');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+            webcam.srcObject = stream;
+            // when the webcam is available, enable the send button
+            sendButton.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error accessing webcam:', error);
+        });
+
+    // Send the image to the server on button click
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    sendButton.addEventListener('click', () => {
+
+        // Disable the button
+        sendButton.disabled = true;
+
+        // Capture the image from the webcam
+        canvas.width = webcam.videoWidth;
+        canvas.height = webcam.videoHeight;
+        context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+        // Convert the canvas content to JPEG blob (not base64)
+        canvas.toBlob((blob) => {
+            if (blob) {
+                // Send the image to the server
+                const reader = new FileReader();
+                reader.onload = () => {
+                    sendUserImage(reader.result);
+                };
+                reader.readAsArrayBuffer(blob); // Read as ArrayBuffer
+            }
+        }, 'image/jpeg');
+    });
+
+    // Content upload endpoint URL
+    const contentEndpointUrl = '/send_content';
+
+    // Send image to server
+    function sendUserImage(imageData) {
+        // Get session id
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const sessionId = urlParams.get('session_id');
+
+        // Encapsulate the imageData to a content JSON
+        const b64data = arrayBufferToBase64(imageData);
+        const requestJson = JSON.stringify({
+            content: {
+                mime_type: "image/jpeg",
+                data: b64data,
+            },
+            session_id: sessionId,
+        });
+
+        // Send the image to the server
+        fetch(contentEndpointUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: requestJson,
+        })
+            .then(response => {
+                // enable the sendButton
+                sendButton.disabled = false;
+                // handle the response
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("sendUserImage(): Sent image: %s bytes.", b64data.length);
+            })
+            .catch((error) => {
+                console.error('sendUserImage(): Error:', error);
+            });
+    }
+
+</script>
+
+</html>

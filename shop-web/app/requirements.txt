@@ -1,0 +1,7 @@
+google-genai==0.8.0
+quart==0.20.0
+quart_cors==0.8.0
+numpy==2.2.0
+scikit-learn==1.6.0
+google-cloud-discoveryengine==0.13.5
+Levenshtein==0.27.1
